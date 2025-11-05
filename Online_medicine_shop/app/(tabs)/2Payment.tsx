@@ -13,7 +13,7 @@ export default function PaymentPage() {
   const [cvv, setCvv] = useState('');
 
   // Example total amount
-  const totalAmount = 210; // You can pass this as a prop
+  const totalAmount = 145; // You can pass this as a prop
 
   const handlePayNow = () => {
     if (!cardNumber || !cardName || !expiry || !cvv) {
