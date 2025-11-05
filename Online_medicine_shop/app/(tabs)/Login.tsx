@@ -53,20 +53,30 @@ export default function LoginScreen() {
         <ThemedText style={styles.footerText}>
           Don’t have an account?{' '}
           <Link href="/1SignUp">
-            <ThemedText type="link" style={styles.signupLink}>
+            <ThemedText type="link" style={styles.Link}>
               Sign Up
             </ThemedText>
           </Link>
         </ThemedText>
 
         <ThemedText style={styles.footerText}>
-          Go To The Home Page {' '}
-          <Link href="/2HomePage">
-            <ThemedText type="link" style={styles.signupLink}>
-              HOME PAGE
+          Go To The dashboard {' '}
+          <Link href="/3AdminDashboard">
+            <ThemedText type="link" style={styles.Link}>
+              Admin Dashboard
             </ThemedText>
           </Link>
         </ThemedText>
+
+        <ThemedText style={styles.footerText}>
+        Go To The Home Page{' '}
+        <Link href="/" >
+        <ThemedText type="link" style={styles.Link}>
+        HOME PAGE
+        </ThemedText>
+        </Link>
+        </ThemedText>
+
         
       </View>
     </ThemedView>
@@ -139,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
   },
-  signupLink: {
+  Link: {
     color: '#0097eeff',
     fontWeight: '600',
   },
