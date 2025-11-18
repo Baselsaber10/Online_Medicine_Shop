@@ -1,29 +1,83 @@
-const Medicine = require('../models/Medicine');
+const Medicine = require("../models/Medicine");
 
 class MedicineController {
+  
   // Get all medicines
   static async getAllMedicines(req, res) {
-    // TODO: fetch all medicines from DB
+    try {
+      const medicines = await Medicine.findAll();
+      return res.json(medicines);
+    } catch (err) {
+      console.error("Get Medicines Error:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
   }
 
-  // Get a medicine by ID
+  // Get single medicine
   static async getMedicineById(req, res) {
-    // TODO: find medicine by ID
+    try {
+      const medicineId = req.params.id;
+
+      const medicine = await Medicine.findById(medicineId);
+      if (!medicine) {
+        return res.status(404).json({ error: "Medicine not found" });
+      }
+
+      return res.json(medicine);
+    } catch (err) {
+      console.error("Get Medicine Error:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
   }
 
-  // Add new medicine
+  // Add new medicine (Admin)
   static async addMedicine(req, res) {
-    // TODO: create new Medicine instance and save
+    try {
+      const { name, description, price, stock } = req.body;
+
+      if (!name || !price || !stock) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const newMedicine = new Medicine(name, description, price, stock);
+      await newMedicine.save();
+
+      return res.status(201).json({ message: "Medicine added", medicine: newMedicine });
+
+    } catch (err) {
+      console.error("Add Medicine Error:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
   }
 
   // Update medicine
   static async updateMedicine(req, res) {
-    // TODO: update existing medicine fields
+    try {
+      const medicineId = req.params.id;
+      const updatedData = req.body;
+
+      const updatedMedicine = await Medicine.update(medicineId, updatedData);
+
+      return res.json({ message: "Medicine updated", updatedMedicine });
+
+    } catch (err) {
+      console.error("Update Medicine Error:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
   }
 
-  // Search medicines
-  static async searchMedicines(req, res) {
-    // TODO: search by name or category
+  // Delete medicine
+  static async deleteMedicine(req, res) {
+    try {
+      const medicineId = req.params.id;
+
+      await Medicine.delete(medicineId);
+      return res.json({ message: "Medicine removed" });
+
+    } catch (err) {
+      console.error("Delete Medicine Error:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
   }
 }
 
