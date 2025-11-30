@@ -27,7 +27,7 @@ export default function SignupPage() {
     );
 
     // Navigate to login page
-    router.push('/1Login');
+    router.push('/Login');
   };
 
   return (
@@ -75,7 +75,7 @@ export default function SignupPage() {
           <BouncyCheckbox
             size={25}
             fillColor="#2E8BC0"
-            unfillColor="#FFFFFF"
+            unFillColor="#FFFFFF"
             text="Register as Admin"
             iconStyle={{ borderColor: "#2E8BC0" }}
             textStyle={{ fontSize: 16, color: '#333333' }}
