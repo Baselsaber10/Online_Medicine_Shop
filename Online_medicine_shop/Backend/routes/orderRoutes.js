@@ -1,11 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const OrderController = require('../controllers/OrderController');
+const OrderController = require("../controllers/OrderController");
 
-// API endpoints
-router.post('/place', OrderController.placeOrder);      // POST /api/orders/place
-router.post('/cancel', OrderController.cancelOrder);    // POST /api/orders/cancel
-router.get('/user/:userId', OrderController.getUserOrders); // GET /api/orders/user/:userId
-router.get('/:orderId', OrderController.trackOrder);    // GET /api/orders/:orderId
+// Place an order
+router.post("/:userId/place", OrderController.placeOrder);
+
+// Get user's orders
+router.get("/:userId", OrderController.getUserOrders);
+
+// Update order status (Admin)
+router.put("/:id/status", OrderController.updateOrderStatus);
 
 module.exports = router;

@@ -1,5 +1,5 @@
-const Cart = require("../models/Cart");
-const Medicine = require("../models/Medicine");
+const CartModel = require("../Models/Cart");
+const MedicineModel = require("../Models/Medicine");
 
 class CartController {
 
@@ -8,7 +8,8 @@ class CartController {
     try {
       const userId = req.params.userId;
 
-      const cart = await Cart.findCartByUserId(userId);
+      // Find cart by user ID
+      const cart = await CartModel.findOne({ userId }).populate("items.medicineId");
       return res.json(cart);
 
     } catch (err) {
@@ -23,13 +24,29 @@ class CartController {
       const userId = req.params.userId;
       const { medicineId, quantity } = req.body;
 
-      // Check medicine exists
-      const medicine = await Medicine.findById(medicineId);
+      // Check if medicine exists
+      const medicine = await MedicineModel.findById(medicineId);
       if (!medicine) {
         return res.status(404).json({ error: "Medicine not found" });
       }
 
-      await Cart.addItem(userId, medicineId, quantity);
+      // Find cart or create new one
+      let cart = await CartModel.findOne({ userId });
+      if (!cart) {
+        cart = new CartModel({ userId, items: [] });
+      }
+
+      // Check if medicine already in cart
+      const itemIndex = cart.items.findIndex(item => item.medicineId.toString() === medicineId);
+      if (itemIndex > -1) {
+        // Update quantity if exists
+        cart.items[itemIndex].quantity += quantity;
+      } else {
+        // Add new item
+        cart.items.push({ medicineId, quantity });
+      }
+
+      await cart.save();
       return res.json({ message: "Item added to cart" });
 
     } catch (err) {
@@ -44,7 +61,15 @@ class CartController {
       const userId = req.params.userId;
       const { medicineId } = req.body;
 
-      await Cart.removeItem(userId, medicineId);
+      const cart = await CartModel.findOne({ userId });
+      if (!cart) {
+        return res.status(404).json({ error: "Cart not found" });
+      }
+
+      // Remove item from cart
+      cart.items = cart.items.filter(item => item.medicineId.toString() !== medicineId);
+      await cart.save();
+
       return res.json({ message: "Item removed from cart" });
 
     } catch (err) {
@@ -58,7 +83,15 @@ class CartController {
     try {
       const userId = req.params.userId;
 
-      await Cart.clear(userId);
+      const cart = await CartModel.findOne({ userId });
+      if (!cart) {
+        return res.status(404).json({ error: "Cart not found" });
+      }
+
+      // Clear all items
+      cart.items = [];
+      await cart.save();
+
       return res.json({ message: "Cart cleared" });
 
     } catch (err) {

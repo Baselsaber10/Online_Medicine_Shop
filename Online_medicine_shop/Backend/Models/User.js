@@ -1,4 +1,14 @@
-const db = require("../database/db");
+const mongoose = require("mongoose");
+
+const UserSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+  password: String,
+  address: String,
+  phone: String,
+});
+
+const UserModel = mongoose.model("User", UserSchema);
 
 class User {
   constructor(id, name, email, password, address, phone) {
@@ -11,38 +21,19 @@ class User {
   }
 
   // Create user
-  static createUser(data) {
-    return new Promise((resolve, reject) => {
-      const query = `INSERT INTO users (name, email, password, address, phone)
-      VALUES (?, ?, ?, ?, ?)`;
-
-      db.run(query, [data.name, data.email, data.password, data.address, data.phone],
-        function (err) {
-          if (err) reject(err);
-          resolve({ id: this.lastID, ...data });
-        }
-      );
-    });
+  static async createUser(data) {
+    const user = await UserModel.create(data);
+    return user;
   }
 
   // Get user by email
-  static findUserByEmail(email) {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
-        if (err) reject(err);
-        resolve(row);
-      });
-    });
+  static async findUserByEmail(email) {
+    return await UserModel.findOne({ email });
   }
 
   // Get user by id
-  static findUserById(id) {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
-        if (err) reject(err);
-        resolve(row);
-      });
-    });
+  static async findUserById(id) {
+    return await UserModel.findById(id);
   }
 }
 
