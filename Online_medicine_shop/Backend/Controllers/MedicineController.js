@@ -1,11 +1,11 @@
-const Medicine = require("../models/Medicine");
+const MedicineModel = require("../Models/Medicine");
 
 class MedicineController {
   
   // Get all medicines
   static async getAllMedicines(req, res) {
     try {
-      const medicines = await Medicine.findAll();
+      const medicines = await MedicineModel.find();
       return res.json(medicines);
     } catch (err) {
       console.error("Get Medicines Error:", err);
@@ -18,7 +18,7 @@ class MedicineController {
     try {
       const medicineId = req.params.id;
 
-      const medicine = await Medicine.findById(medicineId);
+      const medicine = await MedicineModel.findById(medicineId);
       if (!medicine) {
         return res.status(404).json({ error: "Medicine not found" });
       }
@@ -39,7 +39,7 @@ class MedicineController {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const newMedicine = new Medicine(name, description, price, stock);
+      const newMedicine = new MedicineModel({ name, description, price, stock });
       await newMedicine.save();
 
       return res.status(201).json({ message: "Medicine added", medicine: newMedicine });
@@ -56,7 +56,15 @@ class MedicineController {
       const medicineId = req.params.id;
       const updatedData = req.body;
 
-      const updatedMedicine = await Medicine.update(medicineId, updatedData);
+      const updatedMedicine = await MedicineModel.findByIdAndUpdate(
+        medicineId,
+        updatedData,
+        { new: true }
+      );
+
+      if (!updatedMedicine) {
+        return res.status(404).json({ error: "Medicine not found" });
+      }
 
       return res.json({ message: "Medicine updated", updatedMedicine });
 
@@ -71,7 +79,11 @@ class MedicineController {
     try {
       const medicineId = req.params.id;
 
-      await Medicine.delete(medicineId);
+      const deletedMedicine = await MedicineModel.findByIdAndDelete(medicineId);
+      if (!deletedMedicine) {
+        return res.status(404).json({ error: "Medicine not found" });
+      }
+
       return res.json({ message: "Medicine removed" });
 
     } catch (err) {

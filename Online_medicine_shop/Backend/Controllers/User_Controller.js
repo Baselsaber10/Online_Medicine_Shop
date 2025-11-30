@@ -1,4 +1,16 @@
-const db = require("../database/db");
+const mongoose = require('mongoose');
+
+// Define User Schema
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  address: { type: String },
+  phone: { type: String }
+}, { timestamps: true });
+
+// Create User Model
+const UserModel = mongoose.model('User', userSchema);
 
 class User {
   constructor(id, name, email, password, address, phone) {
@@ -10,39 +22,40 @@ class User {
     this.phone = phone;
   }
 
-  // Create user
-  static createUser(data) {
-    return new Promise((resolve, reject) => {
-      const query = `INSERT INTO users (name, email, password, address, phone)
-      VALUES (?, ?, ?, ?, ?)`;
-
-      db.run(query, [data.name, data.email, data.password, data.address, data.phone],
-        function (err) {
-          if (err) reject(err);
-          resolve({ id: this.lastID, ...data });
-        }
-      );
-    });
+  // Create a new user
+  static async createUser(data) {
+    try {
+      const newUser = await UserModel.create({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        address: data.address,
+        phone: data.phone
+      });
+      return { id: newUser._id, ...data };
+    } catch (err) {
+      throw err;
+    }
   }
 
-  // Get user by email
-  static findUserByEmail(email) {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
-        if (err) reject(err);
-        resolve(row);
-      });
-    });
+  // Find a user by email
+  static async findUserByEmail(email) {
+    try {
+      const user = await UserModel.findOne({ email });
+      return user;
+    } catch (err) {
+      throw err;
+    }
   }
 
-  // Get user by id
-  static findUserById(id) {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
-        if (err) reject(err);
-        resolve(row);
-      });
-    });
+  // Find a user by id
+  static async findUserById(id) {
+    try {
+      const user = await UserModel.findById(id);
+      return user;
+    } catch (err) {
+      throw err;
+    }
   }
 }
 

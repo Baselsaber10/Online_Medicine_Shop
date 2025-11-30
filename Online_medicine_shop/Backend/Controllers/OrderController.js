@@ -1,5 +1,5 @@
-const Order = require("../models/Order");
-const Cart = require("../models/Cart");
+const OrderModel = require("../models/Order");
+const CartModel = require("../Models/Cart");
 
 class OrderController {
 
@@ -9,23 +9,24 @@ class OrderController {
       const userId = req.params.userId;
 
       // 1. Get user's cart
-      const cart = await Cart.findCartByUserId(userId);
+      const cart = await CartModel.findOne({ userId }).populate("items.medicineId");
       if (!cart || cart.items.length === 0) {
         return res.status(400).json({ error: "Cart is empty" });
       }
 
       // 2. Create order
-      const newOrder = new Order(
+      const newOrder = new OrderModel({
         userId,
-        cart.items,
-        cart.totalPrice,
-        "Processing"
-      );
+        items: cart.items,
+        totalPrice: cart.items.reduce((acc, item) => acc + item.medicineId.price * item.quantity, 0),
+        status: "Processing"
+      });
 
       await newOrder.save();
 
       // 3. Clear cart after placing order
-      await Cart.clear(userId);
+      cart.items = [];
+      await cart.save();
 
       return res.json({ message: "Order placed", order: newOrder });
 
@@ -40,7 +41,8 @@ class OrderController {
     try {
       const userId = req.params.userId;
 
-      const orders = await Order.findByUserId(userId);
+      // Find all orders by user
+      const orders = await OrderModel.find({ userId }).populate("items.medicineId");
       return res.json(orders);
 
     } catch (err) {
@@ -55,7 +57,13 @@ class OrderController {
       const orderId = req.params.id;
       const { status } = req.body;
 
-      const updatedOrder = await Order.updateStatus(orderId, status);
+      // Update order status
+      const updatedOrder = await OrderModel.findByIdAndUpdate(
+        orderId,
+        { status },
+        { new: true }
+      );
+
       return res.json({ message: "Order status updated", updatedOrder });
 
     } catch (err) {
