@@ -19,7 +19,7 @@ export default function Profile() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleLogout = () => {
-    router.replace('/Login');
+    router.replace('/');
   };
 
   const handleSaveProfile = () => {
