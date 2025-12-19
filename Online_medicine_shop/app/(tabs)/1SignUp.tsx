@@ -137,7 +137,7 @@ export default function SignupPage() {
     );
 
     // Navigate to login page
-    router.push('/Login');
+    router.push('/');
   };
 
   return (
